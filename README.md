@@ -18,8 +18,7 @@ are directly comparable rather than asserted separately.
 
 ## Architecture
 
-Multi-scale block-convolution stack — short, medium, and long convolutional operators (the operator hierarchy is
-inspired by Arc Institute's [StripedHyena2 / Evo2](https://github.com/evo-design/evo)) with gated mixing across
+Multi-scale block-convolution stack — short, medium, and long convolutional operators with gated mixing across
 scales:
 
 - **Short convolutions** read local motif structure near the variant.
@@ -27,8 +26,9 @@ scales:
 - **Long convolutions** read regulatory context across the full window.
 - **Gated mixing** lets the model weight local vs. distal signal per position, rather than a fixed concatenation.
 
-Target: low millions of parameters, low-kilobase sequence windows — sized to represent real architectural decisions
-without requiring frontier-scale compute.
+The short/medium/long operator hierarchy follows the design used in Arc Institute's StripedHyena2 (Evo2). Single-GPU
+trainable at the target scale — low millions of parameters, low-kilobase sequence windows — sized to represent real
+architectural decisions without requiring a distributed training setup.
 
 ## Task and data
 
@@ -40,8 +40,8 @@ without requiring frontier-scale compute.
 ## Evaluation
 
 Leakage-free train/val/test split. Test set scored once per selected checkpoint. Multiple random seeds, variance
-reported. Published numbers from Evo2/Borzoi/etc. are cited as context, never as a controlled comparison — the only
-fair comparison here is against genome-ft's own fine-tuned baseline, same data, same protocol.
+reported. Published numbers are cited as context, never as a controlled comparison — the only fair comparison here
+is against genome-ft's own fine-tuned baseline, same data, same protocol.
 
 ## Implementation order
 
@@ -49,15 +49,18 @@ Data pipeline and leakage-free splits first, with a CNN baseline to sanity-check
 trained from scratch on GenomicBenchmarks and compared against genome-ft directly. Then the ClinVar task, with
 conservation-track fusion and the full multi-seed evaluation.
 
-## Compute
-
-Free-tier GPUs (Colab/Kaggle) for architecture development and the GenomicBenchmarks stage. A short paid burst on
-spot pricing (RunPod/vast.ai) for the ClinVar stage, which needs more data and longer windows.
-
 ## Related work
 
+Non-coding variant effect prediction has several established approaches this project builds on and will be
+evaluated against:
+
+- **Enformer** (Avsec et al., 2021) — long-range attention over ~200kb for gene expression prediction from sequence
+- **Borzoi** (Calico, 2023) — sequence-to-function across RNA-seq coverage tracks
+- **DeepSEA / Sei** — chromatin profile and regulatory effect prediction from sequence
+- **SpliceAI** — splice-site effect prediction from sequence context
+- **BPNet / ChromBPNet** — base-resolution transcription factor binding prediction
+- **Arc Institute Evo / Evo2** (StripedHyena2) — architecture inspiration for the multi-scale convolution design
 - [genome-ft](https://github.com/ankurgenomics/genome-ft) — full-parameter fine-tuning of Nucleotide Transformer v2
-- Arc Institute [Evo / Evo2](https://github.com/evo-design/evo) — StripedHyena2 architecture (design inspiration)
 
 ## License
 
