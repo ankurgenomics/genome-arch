@@ -10,15 +10,23 @@ genomic foundation model (Nucleotide Transformer v2) end-to-end — every parame
 architecture side of that work: a new model, designed and trained from random initialization, evaluated against the
 fine-tuned baseline under an identical protocol.
 
-## Why this project
+## The question
 
-Fine-tuning and architecture design are different skills. Most "foundation model" portfolios only demonstrate the
-first. genome-arch demonstrates the second: an architecture designed and trained from random initialization, not
-adapted from a pretrained checkpoint.
+Does a small architecture with the right inductive biases for DNA — multi-scale locality, reverse-complement
+equivariance, sparse long-range attention — recover most of a general-purpose foundation model's performance on
+non-coding variant prediction, at a small fraction of the parameters and pretraining data? Or does the task
+genuinely require the scale and broad multi-species pretraining that models like Evo2 bring, and inductive bias
+alone can't substitute for it?
 
-The evaluation task is non-coding variant and regulatory-element effect prediction, scoped across species rather
-than a single genome. Evolutionary-scale, cross-species diversity is the axis that actually differentiates serious
-genomic modeling work today — a single-species clinical variant task doesn't exercise it.
+That's not a rhetorical question — it's an open, practically important one. Pretraining at frontier scale is
+expensive; knowing when a well-designed small model closes most of the gap, and when it doesn't, is exactly the
+kind of decision a team building genomic foundation models has to make before committing compute to one approach
+over the other. genome-arch answers it on one task, with one honestly-run comparison, instead of assuming the
+answer either way.
+
+The evaluation task is scoped across species rather than a single genome, since evolutionary-scale, cross-species
+diversity is where inductive bias and scale are most likely to trade off differently than they would on a single,
+well-studied genome.
 
 ## Architecture
 
