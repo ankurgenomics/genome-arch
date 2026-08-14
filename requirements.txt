@@ -1,0 +1,11 @@
+# Target: Python 3.11+, CUDA-enabled PyTorch (Colab/Kaggle/RunPod GPU).
+# Versions are not yet pinned to a tested environment — no training has run yet.
+
+torch>=2.4
+einops>=0.8
+numpy>=1.26
+scikit-learn>=1.4
+pandas>=2.2
+matplotlib>=3.8
+biopython>=1.83
+requests>=2.31

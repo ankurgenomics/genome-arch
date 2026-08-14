@@ -63,8 +63,10 @@ Primary task: cross-species regulatory-element and non-coding variant effect pre
 ## Evaluation
 
 Leakage-free train/val/test split. Test set scored once per selected checkpoint. Multiple random seeds, variance
-reported. Published numbers are cited as context, never as a controlled comparison — the only fair comparison here
-is against genome-ft's own fine-tuned baseline, same data, same protocol.
+reported. Published numbers are cited as context, never as a controlled comparison. The one controlled,
+same-data comparison against genome-ft's fine-tuned baseline happens on the GenomicBenchmarks sanity check, where
+both models see identical data and the identical protocol; the multi-species and ClinVar results stand on their
+own, since genome-ft was never evaluated on that data.
 
 ## Implementation order
 

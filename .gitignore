@@ -1,0 +1,36 @@
+# Checkpoints and model weights
+checkpoints*/
+*.bin
+*.safetensors
+*.pt
+*.pth
+
+# Raw/downloaded data (large, fetched by scripts, not committed)
+data/
+*.fa
+*.fasta
+*.bed
+*.vcf
+*.vcf.gz
+
+# Virtual environment
+.venv/
+venv/
+env/
+__pycache__/
+*.pyc
+
+# Training logs (large, auto-generated)
+*.log
+train_*.log
+eval_*.log
+
+# Metrics JSON (auto-generated, committed selectively)
+metrics_*.json
+
+# Jupyter checkpoints
+.ipynb_checkpoints/
+
+# macOS
+.DS_Store
+**/.DS_Store
