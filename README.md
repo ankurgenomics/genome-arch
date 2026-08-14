@@ -10,11 +10,15 @@ genomic foundation model (Nucleotide Transformer v2) end-to-end — every parame
 architecture side of that work: a new model, designed and trained from random initialization, evaluated against the
 fine-tuned baseline under an identical protocol.
 
-## Why this comparison matters
+## Why this project
 
 Fine-tuning and architecture design are different skills. Most "foundation model" portfolios only demonstrate the
-first. genome-arch demonstrates the second, on the same data and the same evaluation bar as genome-ft, so the two
-are directly comparable rather than asserted separately.
+first. genome-arch demonstrates the second: an architecture designed and trained from random initialization, not
+adapted from a pretrained checkpoint.
+
+The evaluation task is non-coding variant and regulatory-element effect prediction, scoped across species rather
+than a single genome. Evolutionary-scale, cross-species diversity is the axis that actually differentiates serious
+genomic modeling work today — a single-species clinical variant task doesn't exercise it.
 
 ## Architecture
 
@@ -41,10 +45,16 @@ windows — sized to represent real architectural decisions without requiring a 
 
 ## Task and data
 
-- [GenomicBenchmarks](https://github.com/ML-Bioinfo-CEITEC/genomic_benchmarks) (enhancers, promoters) — same
-  dataset as genome-ft, for a direct from-scratch vs. fine-tuned comparison on identical data.
-- [ClinVar](https://www.ncbi.nlm.nih.gov/clinvar/) noncoding SNVs/indels for the primary variant-effect task, with
-  UCSC phyloP/phastCons conservation as an auxiliary input channel.
+Primary task: cross-species regulatory-element and non-coding variant effect prediction.
+
+- **Multi-species conservation and alignment** — [Zoonomia](https://zoonomiaproject.org/) (241 mammalian genomes)
+  or UCSC multi-species alignments, providing constrained-element labels and phyloP/phastCons scores as both
+  targets and auxiliary input across species, not just human.
+- **[ClinVar](https://www.ncbi.nlm.nih.gov/clinvar/)** noncoding SNVs/indels — retained as one evaluation slice
+  (the largest publicly labeled human noncoding-variant set), not the only one.
+- **[GenomicBenchmarks](https://github.com/ML-Bioinfo-CEITEC/genomic_benchmarks)** (enhancers, promoters) — kept
+  only as an implementation sanity check against genome-ft's existing fine-tuned baseline on identical data, not
+  the headline result.
 
 ## Evaluation
 
@@ -54,9 +64,10 @@ is against genome-ft's own fine-tuned baseline, same data, same protocol.
 
 ## Implementation order
 
-Data pipeline and leakage-free splits first, with a CNN baseline to sanity-check the labels. Then the architecture,
-trained from scratch on GenomicBenchmarks and compared against genome-ft directly. Then the ClinVar task, with
-conservation-track fusion and the full multi-seed evaluation.
+Data pipeline and leakage-free splits first, with a CNN baseline to sanity-check the labels. Then a quick
+GenomicBenchmarks run to confirm the architecture trains correctly, checked against genome-ft's existing fine-tuned
+baseline on identical data. Then the real work: multi-species conservation and ClinVar noncoding variant effect
+prediction, with the full multi-seed evaluation.
 
 ## Related work
 
