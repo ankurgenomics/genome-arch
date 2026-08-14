@@ -84,9 +84,17 @@ baseline on identical data. Then the real work: multi-species conservation and C
 prediction, with the full multi-seed evaluation.
 
 `src/model.py` implements the architecture described above — block convolutions, multi-scale gated fusion, top-k
-sparse attention, and the reverse-complement handling — with passing shape/gradient/involution tests in
-`tests/test_model.py` (`python -m pytest tests/`). No training has run yet; this verifies the architecture is
-correctly wired, not that it performs well.
+sparse attention, and the reverse-complement handling (with a dedicated pad index, since GenomicBenchmarks'
+251bp promoter sequences don't divide evenly into any block size) — with passing shape/gradient/involution tests in
+`tests/test_model.py` (`python -m pytest tests/`).
+
+`src/data.py` and `src/train.py` implement the GenomicBenchmarks sanity-check pipeline end to end, verified against
+the live Hugging Face hub (`python -m src.train --task human_nontata_promoters --seeds 42 --epochs 1
+--max_train 300`). A 300-example, 1-epoch smoke run finished with `test_mcc: 0.0` — the model predicted a single
+class throughout, which is the expected outcome at this scale, not a claim about the architecture: the point of the
+run was confirming the pipeline executes correctly (data loads, trains, checkpoints on best validation MCC, scores
+the test set once), not producing a real result. Real training runs on the full dataset, on rented GPU, are the
+next step.
 
 ## Related work
 

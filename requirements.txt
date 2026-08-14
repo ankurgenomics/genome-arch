@@ -1,7 +1,9 @@
-# Target: Python 3.11+, CUDA-enabled PyTorch (Colab/Kaggle/RunPod GPU).
-# Versions are not yet pinned to a tested environment — no training has run yet.
+# Target: Python 3.11+, CUDA-enabled PyTorch (Colab/Kaggle/RunPod GPU) for real
+# training. Verified working CPU-only for tests and small smoke runs on
+# Python 3.14 / torch 2.13 as of this commit.
 
 torch>=2.4
+datasets>=3.0
 einops>=0.8
 numpy>=1.26
 scikit-learn>=1.4
@@ -9,3 +11,4 @@ pandas>=2.2
 matplotlib>=3.8
 biopython>=1.83
 requests>=2.31
+pytest>=8.0

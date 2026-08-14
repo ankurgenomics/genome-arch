@@ -28,9 +28,17 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-# Nucleotide encoding: A=0, C=1, G=2, T=3. Reverse complement of index i is 3-i
-# (A<->T, C<->G), which is why this encoding is used rather than alphabetical.
-VOCAB_SIZE = 4
+# Nucleotide encoding: A=0, C=1, G=2, T=3, PAD=4. A dedicated pad index matters
+# because real sequence lengths (e.g. GenomicBenchmarks' 251bp promoters) don't
+# divide evenly into every block size; padding with a real base like "A" would
+# silently bias the model, since 251 is prime and needs padding for any block
+# size other than 1 or 251.
+VOCAB_SIZE = 5
+PAD_IDX = 4
+
+# Complement lookup: A(0)<->T(3), C(1)<->G(2), PAD(4)->PAD(4). Used instead of
+# the earlier `3 - i` formula so padding survives reverse-complementing intact.
+_COMPLEMENT = torch.tensor([3, 2, 1, 0, 4])
 
 
 class BlockConv1d(nn.Module):
@@ -151,7 +159,7 @@ class GenomeArchModel(nn.Module):
     ):
         super().__init__()
         self.seq_len = seq_len
-        self.embed = nn.Embedding(VOCAB_SIZE, embed_dim)
+        self.embed = nn.Embedding(VOCAB_SIZE, embed_dim, padding_idx=PAD_IDX)
         self.multi_scale = MultiScaleBlock(embed_dim, seq_len, block_size)
         self.norm1 = nn.LayerNorm(embed_dim)
         self.attn = TopKSparseAttention(embed_dim, num_heads, topk)
@@ -160,9 +168,9 @@ class GenomeArchModel(nn.Module):
 
     @staticmethod
     def reverse_complement(x: torch.Tensor) -> torch.Tensor:
-        # x: (batch, seq_len) LongTensor of nucleotide indices in {0,1,2,3}.
-        # Complement: A(0)<->T(3), C(1)<->G(2), i.e. complement(i) = 3 - i.
-        return (3 - x).flip(dims=[1])
+        # x: (batch, seq_len) LongTensor of nucleotide indices in {0,1,2,3,4=PAD}.
+        comp = _COMPLEMENT.to(x.device)[x]
+        return comp.flip(dims=[1])
 
     def encode(self, x: torch.Tensor) -> torch.Tensor:
         h = self.embed(x)
