@@ -83,6 +83,11 @@ GenomicBenchmarks run to confirm the architecture trains correctly, checked agai
 baseline on identical data. Then the real work: multi-species conservation and ClinVar noncoding variant effect
 prediction, with the full multi-seed evaluation.
 
+`src/model.py` implements the architecture described above — block convolutions, multi-scale gated fusion, top-k
+sparse attention, and the reverse-complement handling — with passing shape/gradient/involution tests in
+`tests/test_model.py` (`python -m pytest tests/`). No training has run yet; this verifies the architecture is
+correctly wired, not that it performs well.
+
 ## Related work
 
 Non-coding variant effect prediction has several established approaches this project builds on and will be

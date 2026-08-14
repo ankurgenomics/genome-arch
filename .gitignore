@@ -31,6 +31,9 @@ metrics_*.json
 # Jupyter checkpoints
 .ipynb_checkpoints/
 
+# Test cache
+.pytest_cache/
+
 # macOS
 .DS_Store
 **/.DS_Store
