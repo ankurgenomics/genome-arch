@@ -36,6 +36,10 @@ Multi-scale block-convolution stack combining ideas from two recent genomic arch
   gated and conditioned on local sequence context, concentrating long-range compute on positions more likely to
   carry distal regulatory signal instead of attending everywhere equally.
 - **Gated mixing** across scales and between the convolutional and attention paths.
+- **Reverse-complement equivariance**, following Caduceus (Schiff et al., 2024): DNA is double-stranded, so a
+  sequence and its reverse complement should get consistent treatment. genome-ft handled this with RC augmentation
+  at training time (flipping sequences and hoping the model generalizes); genome-arch builds it into the
+  architecture directly, the way Caduceus does, rather than relying on augmentation to cover it.
 
 Omnii has no released code or weights — this is a from-scratch reimplementation of the architectural ideas
 described in Radical Numerics' public preview, not a port of their implementation, and won't match their exact
@@ -47,9 +51,9 @@ windows — sized to represent real architectural decisions without requiring a 
 
 Primary task: cross-species regulatory-element and non-coding variant effect prediction.
 
-- **Multi-species conservation and alignment** — [Zoonomia](https://zoonomiaproject.org/) (241 mammalian genomes)
-  or UCSC multi-species alignments, providing constrained-element labels and phyloP/phastCons scores as both
-  targets and auxiliary input across species, not just human.
+- **Multi-species whole-genome alignment** — [UCSC Comparative Genomics Lab Cactus alignments](https://cglgenomics.ucsc.edu/data/cactus/),
+  providing constrained-element labels and phyloP/phastCons-style conservation scores as both targets and auxiliary
+  input across species, not just human.
 - **[ClinVar](https://www.ncbi.nlm.nih.gov/clinvar/)** noncoding SNVs/indels — retained as one evaluation slice
   (the largest publicly labeled human noncoding-variant set), not the only one.
 - **[GenomicBenchmarks](https://github.com/ML-Bioinfo-CEITEC/genomic_benchmarks)** (enhancers, promoters) — kept
@@ -82,6 +86,9 @@ evaluated against:
 - **Arc Institute Evo / Evo2** (StripedHyena2) — architecture inspiration for the multi-scale convolution design
 - [Omnii](https://www.radicalnumerics.ai/blog/omnii-health-preview) (Radical Numerics) — architecture inspiration
   for block convolutions and dynamic sparse attention; closed research preview, no released code or weights
+- [Caduceus](https://arxiv.org/abs/2403.03234) (Schiff et al., 2024) — bi-directional, reverse-complement
+  equivariant Mamba/state-space DNA model; architecture inspiration for building RC-equivariance directly into the
+  model rather than relying on augmentation
 - [genome-ft](https://github.com/ankurgenomics/genome-ft) — full-parameter fine-tuning of Nucleotide Transformer v2
 
 ## License
