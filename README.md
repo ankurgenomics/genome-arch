@@ -1,61 +1,58 @@
 # genome-arch
 
-A small multi-scale convolutional architecture for non-coding genomic variant effect prediction, trained from
-scratch and benchmarked against fine-tuned foundation model baselines.
+A multi-scale convolutional architecture for non-coding genomic variant effect prediction, trained from scratch and
+benchmarked directly against fine-tuned foundation model baselines.
 
 ## Overview
 
-genome-arch is a from-scratch architecture study for non-coding variant effect prediction, built as the direct
-counterpart to [genome-ft](https://github.com/ankurgenomics/genome-ft) (full-parameter fine-tuning of Nucleotide
-Transformer v2). Where genome-ft adapts an existing pretrained foundation model, genome-arch designs and trains a
-new architecture from random initialization, then compares the two under an identical evaluation protocol.
+Companion project to [genome-ft](https://github.com/ankurgenomics/genome-ft). genome-ft fine-tunes an existing
+genomic foundation model (Nucleotide Transformer v2) end-to-end — every parameter, no LoRA. genome-arch is the
+architecture side of that work: a new model, designed and trained from random initialization, evaluated against the
+fine-tuned baseline under an identical protocol.
 
-## Motivation
+## Why this comparison matters
 
-Most public "foundation model" work in genomics falls into two categories: pretraining frontier-scale models (Evo2,
-HyenaDNA) on massive multi-species corpora, or fine-tuning those models for a downstream task. There's less public
-work directly comparing what a small, deliberately-designed architecture trained from scratch can achieve against a
-fine-tuned baseline, on the same task, same data, same evaluation protocol. genome-arch is that comparison.
+Fine-tuning and architecture design are different skills. Most "foundation model" portfolios only demonstrate the
+first. genome-arch demonstrates the second, on the same data and the same evaluation bar as genome-ft, so the two
+are directly comparable rather than asserted separately.
 
 ## Architecture
 
-A multi-scale block-convolution stack: short, medium, and long convolutional operators (inspired by the operator
-hierarchy in Arc Institute's [StripedHyena2 / Evo2](https://github.com/evo-design/evo)) stacked with lightweight
-gating, operating on sequence windows in the low-kilobase range around each variant. Design goals:
+Multi-scale block-convolution stack — short, medium, and long convolutional operators (the operator hierarchy is
+inspired by Arc Institute's [StripedHyena2 / Evo2](https://github.com/evo-design/evo)) with gated mixing across
+scales:
 
-- **Short convolutions** capture local motif structure near the variant.
-- **Medium convolutions** capture patterns over hundreds of bases (promoter/enhancer-scale elements).
-- **Long convolutions** capture longer-range regulatory context within the window.
-- Gated mixing between scales, rather than a fixed concatenation, so the model can weight local vs. distal signal
-  per position.
+- **Short convolutions** read local motif structure near the variant.
+- **Medium convolutions** read promoter/enhancer-scale elements (hundreds of bases).
+- **Long convolutions** read regulatory context across the full window.
+- **Gated mixing** lets the model weight local vs. distal signal per position, rather than a fixed concatenation.
 
-Parameter count target: low millions — enough to represent genuine architectural decisions (kernel scales, gating,
-channel mixing) without requiring frontier-scale compute.
+Target: low millions of parameters, low-kilobase sequence windows — sized to represent real architectural decisions
+without requiring frontier-scale compute.
 
 ## Task and data
 
-- **Benchmark warm-up:** [GenomicBenchmarks](https://github.com/ML-Bioinfo-CEITEC/genomic_benchmarks)
-  (`human_enhancers_cohn`, `human_nontata_promoters`) — the same dataset genome-ft uses, for a direct
-  fine-tuned-vs-from-scratch comparison on identical data.
-- **Primary task:** non-coding variant effect prediction on [ClinVar](https://www.ncbi.nlm.nih.gov/clinvar/) SNVs
-  and indels, with UCSC phyloP/phastCons conservation tracks as an auxiliary input channel alongside raw sequence.
+- [GenomicBenchmarks](https://github.com/ML-Bioinfo-CEITEC/genomic_benchmarks) (enhancers, promoters) — same
+  dataset as genome-ft, for a direct from-scratch vs. fine-tuned comparison on identical data.
+- [ClinVar](https://www.ncbi.nlm.nih.gov/clinvar/) noncoding SNVs/indels for the primary variant-effect task, with
+  UCSC phyloP/phastCons conservation as an auxiliary input channel.
 
-## Evaluation protocol
+## Evaluation
 
-Same discipline as genome-ft: leakage-free train/validation/test split, test set scored exactly once per selected
-checkpoint, multiple random seeds with reported variance, no cherry-picked runs. Any published reference numbers
-(Evo2, Borzoi, or other public benchmarks) are cited as context, never presented as a controlled comparison.
+Leakage-free train/val/test split. Test set scored once per selected checkpoint. Multiple random seeds, variance
+reported. Published numbers from Evo2/Borzoi/etc. are cited as context, never as a controlled comparison — the only
+fair comparison here is against genome-ft's own fine-tuned baseline, same data, same protocol.
 
-## Roadmap
+## Implementation order
 
-- [ ] Data pipeline: ClinVar labels, conservation track alignment, leakage-free split, CNN baseline sanity check
-- [ ] Architecture implementation, from-scratch training run on GenomicBenchmarks
-- [ ] ClinVar noncoding variant task, multi-seed evaluation, results write-up
+Data pipeline and leakage-free splits first, with a CNN baseline to sanity-check the labels. Then the architecture,
+trained from scratch on GenomicBenchmarks and compared against genome-ft directly. Then the ClinVar task, with
+conservation-track fusion and the full multi-seed evaluation.
 
 ## Compute
 
-Development and the GenomicBenchmarks stage run on free-tier GPUs (Colab/Kaggle). The ClinVar stage, which needs
-more data and longer sequence windows, uses a short paid burst on spot GPU pricing (RunPod/vast.ai).
+Free-tier GPUs (Colab/Kaggle) for architecture development and the GenomicBenchmarks stage. A short paid burst on
+spot pricing (RunPod/vast.ai) for the ClinVar stage, which needs more data and longer windows.
 
 ## Related work
 
