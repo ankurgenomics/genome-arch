@@ -18,17 +18,26 @@ are directly comparable rather than asserted separately.
 
 ## Architecture
 
-Multi-scale block-convolution stack — short, medium, and long convolutional operators with gated mixing across
-scales:
+Multi-scale block-convolution stack combining ideas from two recent genomic architectures:
 
-- **Short convolutions** read local motif structure near the variant.
-- **Medium convolutions** read promoter/enhancer-scale elements (hundreds of bases).
-- **Long convolutions** read regulatory context across the full window.
-- **Gated mixing** lets the model weight local vs. distal signal per position, rather than a fixed concatenation.
+- **Block convolutions**, following the approach described by Radical Numerics' Omnii: instead of a single scalar
+  kernel shared across the whole sequence (a standard Toeplitz convolution), each local block gets its own dense,
+  learned weight matrix. This allows position-dependent transformations — a promoter-like region and an
+  intron-like region can be processed differently — while staying compute-efficient because each matrix is local
+  to its block.
+- **Multi-scale operators**, following Arc Institute's StripedHyena2 (Evo2): short, medium, and long
+  block-convolution scales, so the model reads local motif structure, promoter/enhancer-scale elements, and longer
+  regulatory context in parallel.
+- **Dynamic sparse attention**, following Omnii: rather than uniform attention across the window, attention is
+  gated and conditioned on local sequence context, concentrating long-range compute on positions more likely to
+  carry distal regulatory signal instead of attending everywhere equally.
+- **Gated mixing** across scales and between the convolutional and attention paths.
 
-The short/medium/long operator hierarchy follows the design used in Arc Institute's StripedHyena2 (Evo2). Single-GPU
-trainable at the target scale — low millions of parameters, low-kilobase sequence windows — sized to represent real
-architectural decisions without requiring a distributed training setup.
+Omnii has no released code or weights — this is a from-scratch reimplementation of the architectural ideas
+described in Radical Numerics' public preview, not a port of their implementation, and won't match their exact
+design or results. StripedHyena2/Evo2's code is open and used as a secondary reference for the multi-scale
+convolution mechanics. Single-GPU trainable at the target scale — low millions of parameters, low-kilobase sequence
+windows — sized to represent real architectural decisions without requiring a distributed training setup.
 
 ## Task and data
 
@@ -60,6 +69,8 @@ evaluated against:
 - **SpliceAI** — splice-site effect prediction from sequence context
 - **BPNet / ChromBPNet** — base-resolution transcription factor binding prediction
 - **Arc Institute Evo / Evo2** (StripedHyena2) — architecture inspiration for the multi-scale convolution design
+- [Omnii](https://www.radicalnumerics.ai/blog/omnii-health-preview) (Radical Numerics) — architecture inspiration
+  for block convolutions and dynamic sparse attention; closed research preview, no released code or weights
 - [genome-ft](https://github.com/ankurgenomics/genome-ft) — full-parameter fine-tuning of Nucleotide Transformer v2
 
 ## License
